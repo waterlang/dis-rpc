@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dis-rpc</artifactId>
+        <groupId>dis.rpc</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rpc-comm</artifactId>
+
+     <dependencies>
+         <dependency>
+             <groupId>org.slf4j</groupId>
+             <artifactId>slf4j-api</artifactId>
+             <version>1.7.25</version>
+         </dependency>
+
+         <dependency>
+             <groupId>org.apache.commons</groupId>
+             <artifactId>commons-lang3</artifactId>
+             <version>3.7</version>
+         </dependency>
+
+         <dependency>
+             <groupId>org.apache.commons</groupId>
+             <artifactId>commons-collections4</artifactId>
+             <version>4.1</version>
+         </dependency>
+
+         <dependency>
+             <groupId>io.netty</groupId>
+             <artifactId>netty-all</artifactId>
+             <version>4.1.17.Final</version>
+         </dependency>
+
+         <dependency>
+             <groupId>io.protostuff</groupId>
+             <artifactId>protostuff-core</artifactId>
+             <version>1.5.4</version>
+         </dependency>
+
+         <dependency>
+             <groupId>io.protostuff</groupId>
+             <artifactId>protostuff-runtime</artifactId>
+             <version>1.5.4</version>
+         </dependency>
+
+         <dependency>
+             <groupId>org.objenesis</groupId>
+             <artifactId> objenesis</artifactId>
+             <version>2.6</version>
+         </dependency>
+
+         <dependency>
+             <groupId>org.projectlombok</groupId>
+             <artifactId>lombok</artifactId>
+             <version>1.18.0</version>
+         </dependency>
+
+         <dependency>
+             <groupId>com.github.ben-manes.caffeine</groupId>
+             <artifactId>caffeine</artifactId>
+             <version>2.5.5</version>
+         </dependency>
+     </dependencies>
+</project>
