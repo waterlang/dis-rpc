@@ -29,60 +29,64 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class DisRpcServer implements ApplicationContextAware ,InitializingBean {
-
+public class DisRpcServer implements ApplicationContextAware, InitializingBean {
 
     @Value("${rpc.port}")
     private Integer port;
 
     /**
-     * 服务名称 key
-     * 服务实例 value
+     * key:服务名   value：具体实例
      */
-    private Map<String,Object> handlerMap = new HashMap<String, Object>();
+    private  static  final Map<String, Object> DIS_SERVICE_MAP = new HashMap<>();
 
-
+    /**
+     * 
+     * @throws Exception
+     */
+    @Override
     public void afterPropertiesSet() throws Exception {
         ProtobufSerializeUtil serializeUtil = new ProtobufSerializeUtil();
         EventLoopGroup master = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
-        try{
-            //start server
+        try {
+            // start server
             ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(master,worker);
+            bootstrap.group(master, worker);
             bootstrap.channel(NioServerSocketChannel.class);
             bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
                 protected void initChannel(SocketChannel channel) throws Exception {
                     ChannelPipeline pipeline = channel.pipeline();
-                    pipeline.addLast(new RpcDecoder(DisRpcRequest.class,serializeUtil));
-                    pipeline.addLast(new RpcEncoder(DisRpcResponse.class,serializeUtil));
-                    pipeline.addLast(new ServerRpcHandler(handlerMap));
+                    pipeline.addLast(new RpcDecoder(DisRpcRequest.class, serializeUtil));
+                    pipeline.addLast(new RpcEncoder(DisRpcResponse.class, serializeUtil));
+                    pipeline.addLast(new ServerRpcHandler(DIS_SERVICE_MAP));
                 }
             });
 
-            ChannelFuture future =  bootstrap.bind(port).sync();
-            log.info("rpc server started，port:{}",port);
+            ChannelFuture future = bootstrap.bind(port).sync();
+            log.info("rpc server started，port:{}", port);
 
-            //todo  server register
+            // todo server register
 
-            //release resource
+            // release resource
             future.channel().closeFuture().sync();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             worker.shutdownGracefully();
             master.shutdownGracefully();
         }
     }
 
+
+    @Override
     public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        //扫描所有的带DisRpcService注解的类
-        Map<String,Object>  serviceBeanMap = ctx.getBeansWithAnnotation(DisRpcService.class);
-        if(!ObjectUtils.isEmpty(serviceBeanMap)){
-            for (Object bean:serviceBeanMap.values()){
+        // 扫描所有的带DisRpcService注解的类
+        Map<String, Object> serviceBeanMap = ctx.getBeansWithAnnotation(DisRpcService.class);
+        if (!ObjectUtils.isEmpty(serviceBeanMap)) {
+            for (Object bean : serviceBeanMap.values()) {
                 DisRpcService rpcService = bean.getClass().getAnnotation(DisRpcService.class);
                 String name = rpcService.value().getName();
-                handlerMap.put(name,bean);
+                DIS_SERVICE_MAP.put(name, bean);
             }
         }
 

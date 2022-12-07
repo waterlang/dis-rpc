@@ -5,9 +5,13 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class DisThreadFactory  implements ThreadFactory {
+/**
+ * 
+ */
+public class DisThreadFactory implements ThreadFactory {
 
-    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    private static final AtomicInteger POOL_NUMBER_ATOMIC = new AtomicInteger(1);
+
     private final ThreadGroup group;
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     private final String namePrefix;
@@ -19,15 +23,24 @@ public class DisThreadFactory  implements ThreadFactory {
             name = "dis-pool";
         }
 
-        namePrefix = name + "-" + poolNumber.getAndIncrement() + "-thread-";
+        namePrefix = name + "-" + POOL_NUMBER_ATOMIC.getAndIncrement() + "-thread-";
     }
 
-    public Thread newThread(Runnable r) {
-        Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-        if (t.isDaemon())
-            t.setDaemon(false);
-        if (t.getPriority() != Thread.NORM_PRIORITY)
-            t.setPriority(Thread.NORM_PRIORITY);
-        return t;
+    /**
+     * 
+     * @param
+     * @return
+     */
+
+    @Override
+    public Thread newThread(Runnable runnable) {
+        Thread thread = new Thread(group, runnable, namePrefix + threadNumber.getAndIncrement(), 0);
+        if (thread.isDaemon()) {
+            thread.setDaemon(false);
+        }
+        if (thread.getPriority() != Thread.NORM_PRIORITY) {
+            thread.setPriority(Thread.NORM_PRIORITY);
+        }
+        return thread;
     }
 }

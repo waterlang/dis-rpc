@@ -11,38 +11,49 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ProtobufSchemaCache {
 
+    /**
+     * 
+     */
     private static class SchemaCacheHolder {
-        private static ProtobufSchemaCache cache = new ProtobufSchemaCache();
+        private static final ProtobufSchemaCache CACHE = new ProtobufSchemaCache();
     }
+
 
     public static ProtobufSchemaCache getInstance() {
-        return SchemaCacheHolder.cache;
+        return SchemaCacheHolder.CACHE;
     }
 
-    Cache<Class<?>, Schema<?>> cache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.HOURS)
-            .maximumSize(1000)
-            .build();
+    /**
+     *
+     */
+    private static final Cache<Class<?>, Schema<?>> CLASS_SCHEMA_CACHE =
+        Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).maximumSize(1000).build();
 
-
-    public Schema<?> get( Class<?> cls) {
-        return get(cls, cache);
+    /**
+     * 
+     * @param cls
+     * @return
+     */
+    public Schema<?> get(Class<?> cls) {
+        return get(cls, CLASS_SCHEMA_CACHE);
     }
 
-
-    private  Schema<?>  get( Class<?> cls, Cache<Class<?>,Schema<?>> cache){
-        Schema<?> schema ;
-        try{
-            schema = cache.get(cls,key->  RuntimeSchema.createFrom(cls));
-        }catch (Exception e) {
+    /**
+     * 
+     * @param cls
+     * @param cache
+     * @return
+     */
+    private Schema<?> get(Class<?> cls, Cache<Class<?>, Schema<?>> cache) {
+        Schema<?> schema;
+        try {
+            schema = cache.get(cls, key -> RuntimeSchema.createFrom(cls));
+        } catch (Exception e) {
             e.printStackTrace();
-            log.error("ProtobufSchemaCache get error,cls:{}",cls.getEnclosingClass().getName());
-            return  null;
+            log.error("ProtobufSchemaCache get error,cls:{}", cls.getEnclosingClass().getName());
+            return null;
         }
         return schema;
     }
-
-
-
 
 }

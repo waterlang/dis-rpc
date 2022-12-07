@@ -2,6 +2,11 @@ package com.dis.rpc.comm.vo;
 
 import lombok.Data;
 
+/**
+ * 
+ * @param <T>
+ */
+
 @Data
 public class DisRpcResponse<T> {
 
@@ -22,9 +27,10 @@ public class DisRpcResponse<T> {
 
     /**
      * 是否有异常信息
+     * 
      * @return
      */
-    public boolean hasException(){
+    public boolean hasException() {
         return exception != null;
     }
 }

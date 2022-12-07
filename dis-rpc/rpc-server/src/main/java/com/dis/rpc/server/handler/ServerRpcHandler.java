@@ -9,20 +9,25 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+/**
+ *
+ */
+
 @Slf4j
 public class ServerRpcHandler extends SimpleChannelInboundHandler<DisRpcRequest> {
 
     /**
-     * 服务名称 key
-     * 服务实例 value
+     * key:服务名称 value:服务实例
      */
-    private final Map<String,Object> handlerMap ;
+    private final Map<String, Object> handlerMap;
 
-
-    public ServerRpcHandler( Map<String,Object> handlerMap){
+    /**
+     * 
+     * @param handlerMap
+     */
+    public ServerRpcHandler(Map<String, Object> handlerMap) {
         this.handlerMap = handlerMap;
     }
-
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -32,25 +37,24 @@ public class ServerRpcHandler extends SimpleChannelInboundHandler<DisRpcRequest>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DisRpcRequest reqest) throws Exception {
         log.info("server channelRead0..........");
-        handle(reqest,ctx);
+        handle(reqest, ctx);
     }
-
 
     /**
      * hanndle biz logic
-     * @param reqest
+     * 
+     * @param
      * @param ctx
      */
-    private void handle(DisRpcRequest reqest,ChannelHandlerContext ctx) {
-        DisReciveHandlerTask task = new DisReciveHandlerTask(reqest,handlerMap,ctx);
-        RpcRecivePool.poolExecutor.submit(task);
+    private void handle(DisRpcRequest request, ChannelHandlerContext ctx) {
+        DisReciveHandlerTask task = new DisReciveHandlerTask(request, handlerMap, ctx);
+        RpcRecivePool.POOL_EXECUTOR.submit(task);
     }
-
-
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("server caught exception ",cause);
+        log.error("server caught exception ", cause);
         ctx.close();
     }
+
 }

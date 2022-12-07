@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-
 @Slf4j
 public class RPCRespFuture<T> implements Future<Object> {
 
@@ -19,38 +18,42 @@ public class RPCRespFuture<T> implements Future<Object> {
 
     private CountDownLatch downLatch = new CountDownLatch(1);
 
-    private Long waitTime = 3000l;
+    private static final Long WAIT_TIME = 3000L;
 
-
+    /**
+     * 
+     * @param result
+     */
     public void setResult(T result) {
-        this.result=result;
+        this.result = result;
         downLatch.countDown();
         notifyAllCallBack();
     }
 
-
     /**
      * notify all callBack
      */
-    private void notifyAllCallBack(){
-        if(!listeners.isEmpty()){
-            for (CallbackListener callbackListener:listeners){
-                if(exception != null){
+    private void notifyAllCallBack() {
+        if (!listeners.isEmpty()) {
+            for (CallbackListener callbackListener : listeners) {
+                if (exception != null) {
                     callbackListener.onException(exception);
-                }else {
-                    callbackListener.onSucces(result);
+                } else {
+                    callbackListener.onSuccess(result);
                 }
             }
         }
     }
 
-
+    /**
+     * 
+     * @param e
+     */
     public void setException(Exception e) {
         this.exception = e;
         downLatch.countDown();
         notifyAllCallBack();
     }
-
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
@@ -69,11 +72,12 @@ public class RPCRespFuture<T> implements Future<Object> {
 
     @Override
     public Object get() throws InterruptedException, ExecutionException {
-        if(  downLatch.await(waitTime,TimeUnit.MILLISECONDS)){
-            return  result;
+        if (downLatch.await(WAIT_TIME, TimeUnit.MILLISECONDS)) {
+            return result;
         }
+
         log.warn("get result failed,cause time out");
-        return  null;
+        return null;
     }
 
     @Override
@@ -85,8 +89,6 @@ public class RPCRespFuture<T> implements Future<Object> {
         }
     }
 
+    
 
-    public  void  addListeners(CallbackListener listener){
-        listeners.add(listener);
-    }
 }

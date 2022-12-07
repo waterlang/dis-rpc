@@ -9,10 +9,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @DisRpcService(HelloService.class)
 public class HelloServiceImpl implements HelloService {
-    AtomicInteger integer = new AtomicInteger(0);
+
+    private final AtomicInteger integer = new AtomicInteger(0);
+
+    @Override
     public String say(String name) {
         int count = integer.addAndGet(1);
-        log.info("----req:{},count:{}",name,count);
-        return "hello :"+count;
+        log.info("----req:{},count:{}", name, count);
+        return "hello :" + count;
     }
+
 }
