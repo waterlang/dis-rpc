@@ -4,59 +4,59 @@ import com.dis.rpc.client.DisRpcClient;
 import com.dis.rpc.client.RPCRespFuture;
 import com.dis.rpc.client.aop.DefaultClientHook;
 import com.dis.rpc.client.aop.RpcHook;
-import com.dis.rpc.client.listener.CallbackListener;
 import com.dis.rpc.client.proxy.IAsyncObjectProxy;
 import com.dis.rpc.test.api.HelloService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutionException;
 
+/**
+ * 
+ */
+
+@Slf4j
 public class ClientTest {
 
     public static void main(String[] args) {
-        RpcHook hook = new DefaultClientHook() ;
+        RpcHook hook = new DefaultClientHook();
 
         DisRpcClient client = new DisRpcClient();
-        client.creatChannle(hook,"127.0.0.1");
+        client.creatChannel(hook, "127.0.0.1", 8888);
 
-        while (client.handler == null){
+        while (client.getClientRespHandler() == null) {
             try {
                 Thread.sleep(2000);
-                System.out.println("---休息两秒");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("-------satrt---");
+        log.info("--------client starting---");
 
-        //sync
-        HelloService helloService =  client.create(HelloService.class);
-        System.out.println("--helloService:"+helloService);
-        String result =  helloService.say("hahaha");
-        System.out.println("---收到的结果:"+result);
+        // simple
+        // HelloService helloService = client.create(HelloService.class);
+        // helloService.say("ni hao");
 
-        //async
-        IAsyncObjectProxy proxy = client.createAsync(HelloService.class);
-        RPCRespFuture respFuture = proxy.call("say","hahaha");
-        try {
-            System.out.println("---收到的结果:"+respFuture.get());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+         // proxy async
+         IAsyncObjectProxy proxy = client.createProxy(HelloService.class);
+         RPCRespFuture respFuture = proxy.call("say", "hello world");
+         try {
+             log.info("--proxy 调用结果:{}", respFuture.get());
+         } catch (InterruptedException | ExecutionException e) {
+             log.warn("e", e);
+         }
 
-        // call back
-        RPCRespFuture future = proxy.call("say","hahaha");
-        future.addListeners(new CallbackListener() {
-           @Override
-           public void onSucces(Object resp) {
-               System.out.println("--------------success-----resp-------"+resp);
-           }
-
-           @Override
-           public void onException(Object resp) {
-               System.out.println("--------------error-----resp-------");
-           }
-       });
+        // // call back
+        // RPCRespFuture future = proxy.call("say", "hello world");
+        // future.addListeners(new CallbackListener() {
+        // @Override
+        // public void onSuccess(Object resp) {
+        // log.warn("---回调成功结果:{}", resp);
+        // }
+        //
+        // @Override
+        // public void onException(Object resp) {
+        // log.warn("---回调失败结果:{}", resp);
+        // }
+        // });
     }
 }
